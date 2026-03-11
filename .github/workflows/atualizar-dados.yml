@@ -19,7 +19,7 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Instalar dependencias
         run: |
@@ -30,7 +30,7 @@ jobs:
         run: |
           python atualizar_dados.py
 
-      - name: Commitar alteracoes
+      - name: Commitar dados.json se houve alteracao
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

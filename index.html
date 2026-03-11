@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PLD Hoje e Próximo Dia</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="painel">
+      <div class="topo">
+        <h1>PLD - Hoje e Próximo Dia</h1>
+        <button id="btnAtualizar" type="button">Atualizar</button>
+      </div>
+
+      <div class="info">
+        <p id="status">Carregando dados...</p>
+        <p id="infoHoje"></p>
+        <p id="infoAmanha"></p>
+      </div>
+    </section>
+
+    <section class="painel">
+      <h2>Hoje</h2>
+      <div class="tabela-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>NORDESTE</th>
+              <th>SUDESTE</th>
+              <th>SUL</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-hoje"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="painel">
+      <h2>Próximo Dia</h2>
+      <div class="tabela-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>NORDESTE</th>
+              <th>SUDESTE</th>
+              <th>SUL</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-amanha"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="painel debug-box">
+      <h2>Debug</h2>
+      <pre id="debug"></pre>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

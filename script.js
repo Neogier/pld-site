@@ -1,6 +1,4 @@
-const RESOURCE_ID = "3f279d6b-1069-42f7-9b0a-217b084729c4";
-const BASE_URL = "https://dadosabertos.ccee.org.br/api/3/action/datastore_search";
-
+const URL_DADOS = "./dados.json";
 const SUBMERCADOS_DESEJADOS = ["NORDESTE", "SUDESTE", "SUL"];
 
 const statusEl = document.getElementById("status");
@@ -31,125 +29,15 @@ function limparTudo() {
   debugEl.textContent = "";
 }
 
-function formatarDataISO(data) {
-  const ano = data.getFullYear();
-  const mes = String(data.getMonth() + 1).padStart(2, "0");
-  const dia = String(data.getDate()).padStart(2, "0");
-  return `${ano}-${mes}-${dia}`;
-}
-
-function formatarDataBR(data) {
-  const dia = String(data.getDate()).padStart(2, "0");
-  const mes = String(data.getMonth() + 1).padStart(2, "0");
-  const ano = data.getFullYear();
-  return `${dia}/${mes}/${ano}`;
-}
-
-function obterHoje() {
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  return hoje;
-}
-
-function obterAmanha() {
-  const amanha = obterHoje();
-  amanha.setDate(amanha.getDate() + 1);
-  return amanha;
-}
-
-function normalizarNumero(valor) {
-  if (valor === null || valor === undefined || valor === "") {
-    return null;
-  }
-
-  const numero = Number(valor);
-  return Number.isFinite(numero) ? numero : null;
-}
-
 function formatarNumeroBR(valor) {
   if (valor === null || valor === undefined || Number.isNaN(valor)) {
     return "";
   }
 
-  return valor.toLocaleString("pt-BR", {
+  return Number(valor).toLocaleString("pt-BR", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
-}
-
-function padronizarSubmercado(valor) {
-  const texto = String(valor || "").trim().toUpperCase();
-
-  if (texto.includes("SUDESTE")) return "SUDESTE";
-  if (texto.includes("SUL")) return "SUL";
-  if (texto.includes("NORDESTE")) return "NORDESTE";
-  if (texto.includes("NORTE")) return "NORTE";
-
-  return texto;
-}
-
-function montarDataRegistro(item) {
-  const mesReferencia = String(item.MES_REFERENCIA || "").trim();
-  const dia = String(item.DIA || "").trim().padStart(2, "0");
-
-  if (!/^\d{6}$/.test(mesReferencia) || !/^\d{2}$/.test(dia)) {
-    return null;
-  }
-
-  const ano = Number(mesReferencia.slice(0, 4));
-  const mes = Number(mesReferencia.slice(4, 6));
-
-  const data = new Date(ano, mes - 1, Number(dia));
-  data.setHours(0, 0, 0, 0);
-
-  if (Number.isNaN(data.getTime())) {
-    return null;
-  }
-
-  return data;
-}
-
-function enriquecerRegistros(registros) {
-  return registros
-    .map((item) => {
-      const dataObj = montarDataRegistro(item);
-      if (!dataObj) return null;
-
-      return {
-        ...item,
-        DATA_OBJ: dataObj,
-        DATA_ISO: formatarDataISO(dataObj),
-        DATA_BR: formatarDataBR(dataObj)
-      };
-    })
-    .filter(Boolean);
-}
-
-function montarMatrizHoraria(registros) {
-  const matriz = {};
-
-  for (let hora = 0; hora <= 23; hora++) {
-    matriz[hora] = {
-      Hora: hora,
-      NORDESTE: null,
-      SUDESTE: null,
-      SUL: null
-    };
-  }
-
-  for (const item of registros) {
-    const hora = Number(item.HORA);
-    const submercado = padronizarSubmercado(item.SUBMERCADO);
-    const valor = normalizarNumero(item.PLD_HORA);
-
-    if (!Number.isInteger(hora) || hora < 0 || hora > 23) continue;
-    if (!SUBMERCADOS_DESEJADOS.includes(submercado)) continue;
-    if (valor === null) continue;
-
-    matriz[hora][submercado] = valor;
-  }
-
-  return Object.values(matriz).sort((a, b) => a.Hora - b.Hora);
 }
 
 function obterMenoresPorColuna(linhas, coluna) {
@@ -235,92 +123,55 @@ function renderizarTabela(linhas, tbody) {
   }
 }
 
-async function buscarLoteRecente() {
-  const url = new URL(BASE_URL);
-  url.searchParams.set("resource_id", RESOURCE_ID);
-  url.searchParams.set("limit", "32000");
-
-  debugEl.textContent += `URL lote recente:\n${url.toString()}\n\n`;
-
-  const resposta = await fetch(url.toString());
-
-  debugEl.textContent += `HTTP Status lote: ${resposta.status}\n`;
-  debugEl.textContent += `Content-Type lote: ${resposta.headers.get("content-type") || "não informado"}\n\n`;
-
-  if (!resposta.ok) {
-    const textoErro = await resposta.text();
-    debugEl.textContent += `Corpo do erro lote:\n${textoErro}\n\n`;
-    throw new Error(`Falha HTTP: ${resposta.status}`);
-  }
-
-  const json = await resposta.json();
-  debugEl.textContent += `Resposta lote:\n${JSON.stringify(json, null, 2).slice(0, 3000)}\n\n`;
-
-  if (!json.success) {
-    throw new Error("A API retornou success=false.");
-  }
-
-  const registrosBrutos = json.result?.records || [];
-
-  return registrosBrutos.filter((item) =>
-    SUBMERCADOS_DESEJADOS.includes(padronizarSubmercado(item.SUBMERCADO))
-  );
-}
-
-function filtrarPorDataISO(registros, dataISO) {
-  return registros.filter((item) => item.DATA_ISO === dataISO);
-}
-
-function obterDatasDisponiveisCompletas(registros) {
-  return [...new Set(registros.map((item) => item.DATA_ISO))].sort((a, b) => b.localeCompare(a));
-}
-
 async function carregarDados() {
   setStatus("Carregando dados...", "");
   limparTudo();
 
   try {
-    const hoje = obterHoje();
-    const amanha = obterAmanha();
+    const resposta = await fetch(`${URL_DADOS}?v=${Date.now()}`, {
+      cache: "no-store"
+    });
 
-    const hojeISO = formatarDataISO(hoje);
-    const amanhaISO = formatarDataISO(amanha);
+    debugEl.textContent += `URL dados:\n${URL_DADOS}\n\n`;
+    debugEl.textContent += `HTTP Status: ${resposta.status}\n`;
+    debugEl.textContent += `Content-Type: ${resposta.headers.get("content-type") || "não informado"}\n\n`;
 
-    const registrosBrutos = await buscarLoteRecente();
-    const registros = enriquecerRegistros(registrosBrutos);
-
-    if (registros.length === 0) {
-      setStatus("Nenhum registro retornado pela API.", "vazio");
-      return;
+    if (!resposta.ok) {
+      const textoErro = await resposta.text();
+      debugEl.textContent += `Corpo do erro:\n${textoErro}\n\n`;
+      throw new Error(`Falha HTTP: ${resposta.status}`);
     }
 
-    const datasDisponiveis = obterDatasDisponiveisCompletas(registros);
+    const json = await resposta.json();
 
-    debugEl.textContent += `Datas completas encontradas:\n${datasDisponiveis.join(", ")}\n\n`;
+    debugEl.textContent += JSON.stringify(json, null, 2).slice(0, 4000);
 
-    const registrosHoje = filtrarPorDataISO(registros, hojeISO);
-    const registrosAmanha = filtrarPorDataISO(registros, amanhaISO);
+    const hoje = json.hoje || {};
+    const amanha = json.amanha || {};
 
-    const linhasHoje = montarMatrizHoraria(registrosHoje);
-    const linhasAmanha = montarMatrizHoraria(registrosAmanha);
+    const linhasHoje = Array.isArray(hoje.linhas) ? hoje.linhas : [];
+    const linhasAmanha = Array.isArray(amanha.linhas) ? amanha.linhas : [];
 
     renderizarTabela(linhasHoje, tbodyHojeEl);
     renderizarTabela(linhasAmanha, tbodyAmanhaEl);
 
-    infoHojeEl.textContent = `Hoje: ${formatarDataBR(hoje)} | Registros encontrados: ${registrosHoje.length}`;
-    infoAmanhaEl.textContent = `Próximo dia: ${formatarDataBR(amanha)} | Registros encontrados: ${registrosAmanha.length}`;
+    infoHojeEl.textContent =
+      `Hoje: ${hoje.data_br || "-"} | Registros encontrados: ${hoje.total_registros ?? 0}`;
 
-    if (registrosHoje.length === 0 && registrosAmanha.length === 0) {
+    infoAmanhaEl.textContent =
+      `Próximo dia: ${amanha.data_br || "-"} | Registros encontrados: ${amanha.total_registros ?? 0}`;
+
+    if ((hoje.total_registros ?? 0) === 0 && (amanha.total_registros ?? 0) === 0) {
       setStatus("Nenhum registro encontrado para hoje e próximo dia.", "vazio");
       return;
     }
 
-    if (registrosHoje.length > 0 && registrosAmanha.length === 0) {
+    if ((hoje.total_registros ?? 0) > 0 && (amanha.total_registros ?? 0) === 0) {
       setStatus("Hoje carregado com sucesso. Próximo dia ainda sem registros.", "ok");
       return;
     }
 
-    if (registrosHoje.length === 0 && registrosAmanha.length > 0) {
+    if ((hoje.total_registros ?? 0) === 0 && (amanha.total_registros ?? 0) > 0) {
       setStatus("Próximo dia carregado com sucesso. Hoje sem registros.", "ok");
       return;
     }

@@ -1,5 +1,6 @@
 {
-  "atualizado_em": "2026-03-12T15:35:39Z",
+  "atualizado_em": "2026-03-12T13:11:14Z",
+  "teste": "computador",
   "fonte": {
     "base_url": "https://dadosabertos.ccee.org.br/api/3/action/datastore_search",
     "resource_id": "3f279d6b-1069-42f7-9b0a-217b084729c4",

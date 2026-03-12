@@ -10,12 +10,12 @@ const tbodyAmanhaEl = document.getElementById("tbody-amanha");
 const btnAtualizar = document.getElementById("btnAtualizar");
 const btnBaixarHoje = document.getElementById("btnBaixarHoje");
 const btnBaixarAmanha = document.getElementById("btnBaixarAmanha");
-const cardHoje = document.getElementById("card-hoje");
-const cardAmanha = document.getElementById("card-amanha");
+const tabelaHoje = document.getElementById("tabela-hoje");
+const tabelaAmanha = document.getElementById("tabela-amanha");
 
 btnAtualizar.addEventListener("click", carregarDados);
-btnBaixarHoje.addEventListener("click", () => baixarTabelaComoImagem(cardHoje, "tabela-hoje"));
-btnBaixarAmanha.addEventListener("click", () => baixarTabelaComoImagem(cardAmanha, "tabela-proximo-dia"));
+btnBaixarHoje.addEventListener("click", () => baixarTabelaComoImagem(tabelaHoje, "tabela-hoje"));
+btnBaixarAmanha.addEventListener("click", () => baixarTabelaComoImagem(tabelaAmanha, "tabela-proximo-dia"));
 document.addEventListener("DOMContentLoaded", carregarDados);
 
 function setStatus(texto, classe = "") {
@@ -129,13 +129,31 @@ function renderizarTabela(linhas, tbody) {
   }
 }
 
-async function baixarTabelaComoImagem(elemento, nomeArquivo) {
+async function baixarTabelaComoImagem(tabela, nomeArquivo) {
   try {
-    const canvas = await html2canvas(elemento, {
+    const cloneWrapper = document.createElement("div");
+    cloneWrapper.style.position = "fixed";
+    cloneWrapper.style.left = "-99999px";
+    cloneWrapper.style.top = "0";
+    cloneWrapper.style.background = "#ffffff";
+    cloneWrapper.style.padding = "16px";
+    cloneWrapper.style.zIndex = "-1";
+
+    const cloneTabela = tabela.cloneNode(true);
+    cloneTabela.style.width = "900px";
+    cloneTabela.style.tableLayout = "fixed";
+    cloneTabela.style.borderCollapse = "collapse";
+
+    cloneWrapper.appendChild(cloneTabela);
+    document.body.appendChild(cloneWrapper);
+
+    const canvas = await html2canvas(cloneWrapper, {
       backgroundColor: "#ffffff",
       scale: 2,
       useCORS: true
     });
+
+    document.body.removeChild(cloneWrapper);
 
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");

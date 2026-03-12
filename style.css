@@ -1,83 +1,213 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLD - Hoje e Próximo Dia</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <main class="container">
-    <section class="painel painel-topo">
-      <div class="topo">
-        <h1>PLD - Hoje e Próximo Dia</h1>
-        <button id="btnAtualizar" type="button">Atualizar</button>
-      </div>
+* {
+  box-sizing: border-box;
+}
 
-      <div class="info">
-        <p id="status">Carregando dados...</p>
-        <p id="infoHoje"></p>
-        <p id="infoAmanha"></p>
-      </div>
-    </section>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+}
 
-    <section class="painel">
-      <div class="titulo-tabela">
-        <h2>Hoje</h2>
-        <button id="btnBaixarHoje" type="button" class="btn-secundario">
-          Baixar imagem
-        </button>
-      </div>
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px;
+}
 
-      <div class="card-tabela" id="card-hoje">
-        <div class="tabela-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Hora</th>
-                <th>NORDESTE</th>
-                <th>SUDESTE</th>
-                <th>SUL</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-hoje"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+.painel {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
 
-    <section class="painel">
-      <div class="titulo-tabela">
-        <h2>Próximo Dia</h2>
-        <button id="btnBaixarAmanha" type="button" class="btn-secundario">
-          Baixar imagem
-        </button>
-      </div>
+.painel-topo {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
 
-      <div class="card-tabela" id="card-amanha">
-        <div class="tabela-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Hora</th>
-                <th>NORDESTE</th>
-                <th>SUDESTE</th>
-                <th>SUL</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-amanha"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
 
-    <section class="painel debug-box">
-      <h2>Debug</h2>
-      <pre id="debug"></pre>
-    </section>
-  </main>
+.topo h1 {
+  margin: 0;
+  font-size: 22px;
+}
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="script.js"></script>
-</body>
-</html>
+.titulo-tabela {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.titulo-tabela h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+button {
+  border: 1px solid #9ca3af;
+  background: #f9fafb;
+  color: #111827;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #f3f4f6;
+}
+
+.btn-secundario {
+  background: #eef6ff;
+  border-color: #93c5fd;
+}
+
+.info p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.ok {
+  color: #166534;
+  font-weight: bold;
+}
+
+.erro {
+  color: #991b1b;
+  font-weight: bold;
+}
+
+.vazio {
+  color: #92400e;
+  font-weight: bold;
+}
+
+.card-tabela {
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tabela-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 520px;
+}
+
+th,
+td {
+  border: 1px solid #7c7c7c;
+  text-align: center;
+  padding: 8px 6px;
+  font-size: 14px;
+}
+
+thead th {
+  background: #efefef;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+td.hora {
+  background: #f8f8f8;
+  width: 64px;
+  font-weight: 600;
+}
+
+td.menor {
+  background: #fff200;
+}
+
+td.maior {
+  background: #cfe8f6;
+}
+
+.debug-box h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+  background: #111827;
+  color: #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 120px;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .painel {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .topo h1 {
+    font-size: 18px;
+  }
+
+  .titulo-tabela h2 {
+    font-size: 17px;
+  }
+
+  button {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .topo,
+  .titulo-tabela {
+    align-items: stretch;
+  }
+
+  table {
+    min-width: 440px;
+  }
+
+  th,
+  td {
+    padding: 7px 4px;
+    font-size: 12px;
+  }
+
+  td.hora {
+    width: 52px;
+  }
+
+  #debug {
+    font-size: 11px;
+  }
+}

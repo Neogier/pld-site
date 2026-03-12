@@ -184,18 +184,23 @@ pre {
     align-items: stretch;
   }
 
+  .tabela-wrapper {
+    overflow-x: auto;
+  }
+
   table {
     width: 100%;
+    min-width: 360px;
   }
 
   th,
   td {
-    font-size: 11px;
-    padding: 6px 2px;
+    font-size: 10px;
+    padding: 5px 2px;
   }
 
   td.hora {
-    width: 42px;
+    width: 36px;
   }
 
   .debug-box {

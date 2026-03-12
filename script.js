@@ -131,29 +131,92 @@ function renderizarTabela(linhas, tbody) {
 
 async function baixarTabelaComoImagem(tabela, nomeArquivo) {
   try {
-    const cloneWrapper = document.createElement("div");
-    cloneWrapper.style.position = "fixed";
-    cloneWrapper.style.left = "-99999px";
-    cloneWrapper.style.top = "0";
-    cloneWrapper.style.background = "#ffffff";
-    cloneWrapper.style.padding = "16px";
-    cloneWrapper.style.zIndex = "-1";
+    const exportBox = document.createElement("div");
+    exportBox.style.position = "fixed";
+    exportBox.style.left = "-100000px";
+    exportBox.style.top = "0";
+    exportBox.style.background = "#ffffff";
+    exportBox.style.padding = "20px";
+    exportBox.style.zIndex = "-1";
+    exportBox.style.overflow = "visible";
+    exportBox.style.width = "980px";
+    exportBox.style.maxWidth = "none";
+    exportBox.style.boxSizing = "border-box";
 
-    const cloneTabela = tabela.cloneNode(true);
-    cloneTabela.style.width = "900px";
-    cloneTabela.style.tableLayout = "fixed";
-    cloneTabela.style.borderCollapse = "collapse";
+    const titulo = document.createElement("div");
+    titulo.textContent = nomeArquivo === "tabela-hoje" ? "PLD - Hoje" : "PLD - Próximo Dia";
+    titulo.style.fontFamily = "Arial, Helvetica, sans-serif";
+    titulo.style.fontSize = "28px";
+    titulo.style.fontWeight = "700";
+    titulo.style.marginBottom = "14px";
+    titulo.style.color = "#111827";
 
-    cloneWrapper.appendChild(cloneTabela);
-    document.body.appendChild(cloneWrapper);
+    const subtitulo = document.createElement("div");
+    subtitulo.textContent = new Date().toLocaleString("pt-BR");
+    subtitulo.style.fontFamily = "Arial, Helvetica, sans-serif";
+    subtitulo.style.fontSize = "16px";
+    subtitulo.style.marginBottom = "16px";
+    subtitulo.style.color = "#4b5563";
 
-    const canvas = await html2canvas(cloneWrapper, {
-      backgroundColor: "#ffffff",
-      scale: 2,
-      useCORS: true
+    const tabelaClone = tabela.cloneNode(true);
+    tabelaClone.style.width = "940px";
+    tabelaClone.style.minWidth = "940px";
+    tabelaClone.style.maxWidth = "940px";
+    tabelaClone.style.tableLayout = "fixed";
+    tabelaClone.style.borderCollapse = "collapse";
+    tabelaClone.style.fontFamily = "Arial, Helvetica, sans-serif";
+    tabelaClone.style.background = "#ffffff";
+
+    const cells = tabelaClone.querySelectorAll("th, td");
+    cells.forEach((cell) => {
+      cell.style.border = "1px solid #7c7c7c";
+      cell.style.padding = "10px 6px";
+      cell.style.fontSize = "22px";
+      cell.style.textAlign = "center";
+      cell.style.whiteSpace = "nowrap";
+      cell.style.color = "#111827";
     });
 
-    document.body.removeChild(cloneWrapper);
+    const headers = tabelaClone.querySelectorAll("thead th");
+    headers.forEach((th) => {
+      th.style.background = "#efefef";
+      th.style.fontWeight = "700";
+    });
+
+    const horas = tabelaClone.querySelectorAll("td.hora");
+    horas.forEach((td) => {
+      td.style.background = "#f8f8f8";
+      td.style.fontWeight = "700";
+      td.style.width = "110px";
+    });
+
+    const menores = tabelaClone.querySelectorAll("td.menor");
+    menores.forEach((td) => {
+      td.style.background = "#fff200";
+    });
+
+    const maiores = tabelaClone.querySelectorAll("td.maior");
+    maiores.forEach((td) => {
+      td.style.background = "#cfe8f6";
+    });
+
+    exportBox.appendChild(titulo);
+    exportBox.appendChild(subtitulo);
+    exportBox.appendChild(tabelaClone);
+    document.body.appendChild(exportBox);
+
+    const canvas = await html2canvas(exportBox, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      width: exportBox.scrollWidth,
+      height: exportBox.scrollHeight,
+      windowWidth: exportBox.scrollWidth,
+      windowHeight: exportBox.scrollHeight
+    });
+
+    document.body.removeChild(exportBox);
 
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");

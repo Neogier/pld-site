@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLD Hoje e Próximo Dia</title>
+  <title>PLD - Hoje e Próximo Dia</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
-    <section class="painel">
+    <section class="painel painel-topo">
       <div class="topo">
         <h1>PLD - Hoje e Próximo Dia</h1>
         <button id="btnAtualizar" type="button">Atualizar</button>
@@ -22,36 +22,52 @@
     </section>
 
     <section class="painel">
-      <h2>Hoje</h2>
-      <div class="tabela-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Hora</th>
-              <th>NORDESTE</th>
-              <th>SUDESTE</th>
-              <th>SUL</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-hoje"></tbody>
-        </table>
+      <div class="titulo-tabela">
+        <h2>Hoje</h2>
+        <button id="btnBaixarHoje" type="button" class="btn-secundario">
+          Baixar imagem
+        </button>
+      </div>
+
+      <div class="card-tabela" id="card-hoje">
+        <div class="tabela-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>NORDESTE</th>
+                <th>SUDESTE</th>
+                <th>SUL</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-hoje"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
     <section class="painel">
-      <h2>Próximo Dia</h2>
-      <div class="tabela-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Hora</th>
-              <th>NORDESTE</th>
-              <th>SUDESTE</th>
-              <th>SUL</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-amanha"></tbody>
-        </table>
+      <div class="titulo-tabela">
+        <h2>Próximo Dia</h2>
+        <button id="btnBaixarAmanha" type="button" class="btn-secundario">
+          Baixar imagem
+        </button>
+      </div>
+
+      <div class="card-tabela" id="card-amanha">
+        <div class="tabela-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>NORDESTE</th>
+                <th>SUDESTE</th>
+                <th>SUL</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-amanha"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -61,6 +77,7 @@
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

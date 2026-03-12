@@ -8,8 +8,14 @@ const debugEl = document.getElementById("debug");
 const tbodyHojeEl = document.getElementById("tbody-hoje");
 const tbodyAmanhaEl = document.getElementById("tbody-amanha");
 const btnAtualizar = document.getElementById("btnAtualizar");
+const btnBaixarHoje = document.getElementById("btnBaixarHoje");
+const btnBaixarAmanha = document.getElementById("btnBaixarAmanha");
+const cardHoje = document.getElementById("card-hoje");
+const cardAmanha = document.getElementById("card-amanha");
 
 btnAtualizar.addEventListener("click", carregarDados);
+btnBaixarHoje.addEventListener("click", () => baixarTabelaComoImagem(cardHoje, "tabela-hoje"));
+btnBaixarAmanha.addEventListener("click", () => baixarTabelaComoImagem(cardAmanha, "tabela-proximo-dia"));
 document.addEventListener("DOMContentLoaded", carregarDados);
 
 function setStatus(texto, classe = "") {
@@ -120,6 +126,24 @@ function renderizarTabela(linhas, tbody) {
     }
 
     tbody.appendChild(tr);
+  }
+}
+
+async function baixarTabelaComoImagem(elemento, nomeArquivo) {
+  try {
+    const canvas = await html2canvas(elemento, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true
+    });
+
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = `${nomeArquivo}.png`;
+    link.click();
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível gerar a imagem da tabela.");
   }
 }
 

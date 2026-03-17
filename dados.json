@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "2026-03-17T11:17:30Z",
+  "atualizado_em": "2026-03-17T22:06:02Z",
   "fonte": {
     "base_url": "https://dadosabertos.ccee.org.br/api/3/action/datastore_search",
     "resource_id": "3f279d6b-1069-42f7-9b0a-217b084729c4",
@@ -159,151 +159,151 @@
   "amanha": {
     "data_iso": "2026-03-18",
     "data_br": "18/03/2026",
-    "total_registros": 0,
+    "total_registros": 72,
     "linhas": [
       {
         "Hora": 0,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 464.45,
+        "SUDESTE": 464.46,
+        "SUL": 464.47
       },
       {
         "Hora": 1,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 424.28,
+        "SUDESTE": 424.28,
+        "SUL": 432.85
       },
       {
         "Hora": 2,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 404.78,
+        "SUDESTE": 404.78,
+        "SUL": 431.69
       },
       {
         "Hora": 3,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 353.82,
+        "SUDESTE": 378.85,
+        "SUL": 435.2
       },
       {
         "Hora": 4,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 393.22,
+        "SUDESTE": 393.22,
+        "SUL": 434.88
       },
       {
         "Hora": 5,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 408.89,
+        "SUDESTE": 408.9,
+        "SUL": 430.47
       },
       {
         "Hora": 6,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 218.51,
+        "SUDESTE": 407.41,
+        "SUL": 430.82
       },
       {
         "Hora": 7,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 57.31,
+        "SUDESTE": 344.59,
+        "SUL": 472.35
       },
       {
         "Hora": 8,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 57.31,
+        "SUDESTE": 190.01,
+        "SUL": 533.76
       },
       {
         "Hora": 9,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 590.74
       },
       {
         "Hora": 10,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 593.46
       },
       {
         "Hora": 11,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 585.49
       },
       {
         "Hora": 12,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 525.38
       },
       {
         "Hora": 13,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 565.45
       },
       {
         "Hora": 14,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 579.56
       },
       {
         "Hora": 15,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 132.64,
+        "SUDESTE": 299.74,
+        "SUL": 705.97
       },
       {
         "Hora": 16,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 316.1,
+        "SUDESTE": 389.3,
+        "SUL": 728.39
       },
       {
         "Hora": 17,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 470.6,
+        "SUDESTE": 470.61,
+        "SUL": 510.64
       },
       {
         "Hora": 18,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 692.48,
+        "SUDESTE": 692.48,
+        "SUL": 692.49
       },
       {
         "Hora": 19,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 748.79,
+        "SUDESTE": 748.8,
+        "SUL": 748.81
       },
       {
         "Hora": 20,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 753.29,
+        "SUDESTE": 753.3,
+        "SUL": 753.3
       },
       {
         "Hora": 21,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 731.91,
+        "SUDESTE": 731.91,
+        "SUL": 731.92
       },
       {
         "Hora": 22,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 585.34,
+        "SUDESTE": 585.34,
+        "SUL": 585.35
       },
       {
         "Hora": 23,
-        "NORDESTE": null,
-        "SUDESTE": null,
-        "SUL": null
+        "NORDESTE": 501.59,
+        "SUDESTE": 501.59,
+        "SUL": 501.6
       }
     ]
   }

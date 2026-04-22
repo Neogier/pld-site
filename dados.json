@@ -1,162 +1,11 @@
 {
-  "atualizado_em": "2026-04-21T20:50:26Z",
+  "atualizado_em": "2026-04-22T23:50:27Z",
   "fonte": {
     "base_url": "https://dadosabertos.ccee.org.br/api/3/action/datastore_search",
     "resource_id": "3f279d6b-1069-42f7-9b0a-217b084729c4",
     "limite": 32000
   },
   "hoje": {
-    "data_iso": "2026-04-21",
-    "data_br": "21/04/2026",
-    "total_registros": 72,
-    "linhas": [
-      {
-        "Hora": 0,
-        "NORDESTE": 83.93,
-        "SUDESTE": 225.46,
-        "SUL": 225.47
-      },
-      {
-        "Hora": 1,
-        "NORDESTE": 183.0,
-        "SUDESTE": 219.46,
-        "SUL": 219.47
-      },
-      {
-        "Hora": 2,
-        "NORDESTE": 201.35,
-        "SUDESTE": 217.33,
-        "SUL": 217.33
-      },
-      {
-        "Hora": 3,
-        "NORDESTE": 217.25,
-        "SUDESTE": 217.26,
-        "SUL": 217.27
-      },
-      {
-        "Hora": 4,
-        "NORDESTE": 215.63,
-        "SUDESTE": 215.63,
-        "SUL": 215.64
-      },
-      {
-        "Hora": 5,
-        "NORDESTE": 218.35,
-        "SUDESTE": 218.35,
-        "SUL": 218.36
-      },
-      {
-        "Hora": 6,
-        "NORDESTE": 210.6,
-        "SUDESTE": 210.6,
-        "SUL": 210.61
-      },
-      {
-        "Hora": 7,
-        "NORDESTE": 81.48,
-        "SUDESTE": 81.49,
-        "SUL": 215.59
-      },
-      {
-        "Hora": 8,
-        "NORDESTE": 57.31,
-        "SUDESTE": 57.31,
-        "SUL": 219.4
-      },
-      {
-        "Hora": 9,
-        "NORDESTE": 57.31,
-        "SUDESTE": 57.31,
-        "SUL": 203.99
-      },
-      {
-        "Hora": 10,
-        "NORDESTE": 57.31,
-        "SUDESTE": 57.31,
-        "SUL": 198.44
-      },
-      {
-        "Hora": 11,
-        "NORDESTE": 57.31,
-        "SUDESTE": 57.31,
-        "SUL": 199.05
-      },
-      {
-        "Hora": 12,
-        "NORDESTE": 57.31,
-        "SUDESTE": 57.31,
-        "SUL": 195.61
-      },
-      {
-        "Hora": 13,
-        "NORDESTE": 57.31,
-        "SUDESTE": 57.31,
-        "SUL": 196.66
-      },
-      {
-        "Hora": 14,
-        "NORDESTE": 57.31,
-        "SUDESTE": 57.31,
-        "SUL": 205.0
-      },
-      {
-        "Hora": 15,
-        "NORDESTE": 58.31,
-        "SUDESTE": 58.31,
-        "SUL": 216.32
-      },
-      {
-        "Hora": 16,
-        "NORDESTE": 214.58,
-        "SUDESTE": 214.58,
-        "SUL": 218.52
-      },
-      {
-        "Hora": 17,
-        "NORDESTE": 267.2,
-        "SUDESTE": 267.2,
-        "SUL": 267.2
-      },
-      {
-        "Hora": 18,
-        "NORDESTE": 595.09,
-        "SUDESTE": 595.09,
-        "SUL": 595.1
-      },
-      {
-        "Hora": 19,
-        "NORDESTE": 297.42,
-        "SUDESTE": 309.02,
-        "SUL": 309.03
-      },
-      {
-        "Hora": 20,
-        "NORDESTE": 207.59,
-        "SUDESTE": 246.2,
-        "SUL": 246.21
-      },
-      {
-        "Hora": 21,
-        "NORDESTE": 202.91,
-        "SUDESTE": 240.43,
-        "SUL": 240.44
-      },
-      {
-        "Hora": 22,
-        "NORDESTE": 208.42,
-        "SUDESTE": 236.81,
-        "SUL": 236.82
-      },
-      {
-        "Hora": 23,
-        "NORDESTE": 220.95,
-        "SUDESTE": 229.17,
-        "SUL": 229.18
-      }
-    ]
-  },
-  "amanha": {
     "data_iso": "2026-04-22",
     "data_br": "22/04/2026",
     "total_registros": 72,
@@ -304,6 +153,157 @@
         "NORDESTE": 129.54,
         "SUDESTE": 237.15,
         "SUL": 237.16
+      }
+    ]
+  },
+  "amanha": {
+    "data_iso": "2026-04-23",
+    "data_br": "23/04/2026",
+    "total_registros": 72,
+    "linhas": [
+      {
+        "Hora": 0,
+        "NORDESTE": 112.24,
+        "SUDESTE": 227.14,
+        "SUL": 227.15
+      },
+      {
+        "Hora": 1,
+        "NORDESTE": 105.87,
+        "SUDESTE": 222.36,
+        "SUL": 222.37
+      },
+      {
+        "Hora": 2,
+        "NORDESTE": 106.43,
+        "SUDESTE": 218.81,
+        "SUL": 220.34
+      },
+      {
+        "Hora": 3,
+        "NORDESTE": 121.37,
+        "SUDESTE": 217.2,
+        "SUL": 218.37
+      },
+      {
+        "Hora": 4,
+        "NORDESTE": 121.38,
+        "SUDESTE": 218.16,
+        "SUL": 218.52
+      },
+      {
+        "Hora": 5,
+        "NORDESTE": 140.85,
+        "SUDESTE": 224.25,
+        "SUL": 224.26
+      },
+      {
+        "Hora": 6,
+        "NORDESTE": 114.28,
+        "SUDESTE": 227.28,
+        "SUL": 227.29
+      },
+      {
+        "Hora": 7,
+        "NORDESTE": 100.1,
+        "SUDESTE": 214.67,
+        "SUL": 229.19
+      },
+      {
+        "Hora": 8,
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 234.95
+      },
+      {
+        "Hora": 9,
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 228.71
+      },
+      {
+        "Hora": 10,
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 228.29
+      },
+      {
+        "Hora": 11,
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 227.16
+      },
+      {
+        "Hora": 12,
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 222.89
+      },
+      {
+        "Hora": 13,
+        "NORDESTE": 57.31,
+        "SUDESTE": 57.31,
+        "SUL": 226.37
+      },
+      {
+        "Hora": 14,
+        "NORDESTE": 109.82,
+        "SUDESTE": 134.93,
+        "SUL": 229.04
+      },
+      {
+        "Hora": 15,
+        "NORDESTE": 127.19,
+        "SUDESTE": 209.81,
+        "SUL": 232.44
+      },
+      {
+        "Hora": 16,
+        "NORDESTE": 208.28,
+        "SUDESTE": 231.48,
+        "SUL": 231.49
+      },
+      {
+        "Hora": 17,
+        "NORDESTE": 253.2,
+        "SUDESTE": 257.9,
+        "SUL": 257.91
+      },
+      {
+        "Hora": 18,
+        "NORDESTE": 206.09,
+        "SUDESTE": 380.37,
+        "SUL": 380.38
+      },
+      {
+        "Hora": 19,
+        "NORDESTE": 168.39,
+        "SUDESTE": 359.64,
+        "SUL": 359.65
+      },
+      {
+        "Hora": 20,
+        "NORDESTE": 151.74,
+        "SUDESTE": 290.14,
+        "SUL": 290.15
+      },
+      {
+        "Hora": 21,
+        "NORDESTE": 156.87,
+        "SUDESTE": 266.47,
+        "SUL": 266.48
+      },
+      {
+        "Hora": 22,
+        "NORDESTE": 150.87,
+        "SUDESTE": 249.29,
+        "SUL": 249.3
+      },
+      {
+        "Hora": 23,
+        "NORDESTE": 144.5,
+        "SUDESTE": 236.62,
+        "SUL": 236.63
       }
     ]
   }

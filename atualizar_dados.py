@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import requests
+import cloudscraper
 
 
 RESOURCE_ID = "3f279d6b-1069-42f7-9b0a-217b084729c4"
@@ -61,35 +61,19 @@ def buscar_lote_recente():
         "limit": LIMITE
     }
 
-    with requests.Session() as sessao:
-        sessao.headers.update({
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/145.0.0.0 Safari/537.36"
-            ),
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Connection": "keep-alive",
-            "Referer": "https://dadosabertos.ccee.org.br/",
-            "Origin": "https://dadosabertos.ccee.org.br",
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache"
-        })
+    scraper = cloudscraper.create_scraper()
+    response = scraper.get(BASE_URL, params=params, timeout=60)
 
-        response = sessao.get(BASE_URL, params=params, timeout=60)
+    print("URL final:", response.url)
+    print("Status HTTP:", response.status_code)
 
-        print("URL final:", response.url)
-        print("Status HTTP:", response.status_code)
-        print("Headers resposta:", dict(response.headers))
+    if response.status_code != 200:
+        print("Corpo do erro:")
+        print(response.text[:5000])
 
-        if response.status_code != 200:
-            print("Corpo do erro:")
-            print(response.text[:5000])
+    response.raise_for_status()
 
-        response.raise_for_status()
-
-        payload = response.json()
+    payload = response.json()
 
     if not payload.get("success"):
         raise RuntimeError("A API da CCEE retornou success=false.")
@@ -229,7 +213,7 @@ def gerar_saida():
 
     print(f"Arquivo gerado com sucesso: {ARQUIVO_SAIDA.resolve()}")
     print(f"Hoje ({hoje_br}): {len(registros_hoje)} registro(s)")
-    print(f"Amanhã ({amanha_br}): {len(registros_amanha)} registro(s)")
+    print(f"Amanha ({amanha_br}): {len(registros_amanha)} registro(s)")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import requests
+from curl_cffi import requests
 
 
 RESOURCE_ID = "3f279d6b-1069-42f7-9b0a-217b084729c4"
@@ -77,7 +77,7 @@ def buscar_lote_recente():
             "Pragma": "no-cache"
         })
 
-        response = sessao.get(BASE_URL, params=params, timeout=60)
+        response = sessao.get(BASE_URL, params=params, timeout=60, impersonate="chrome")
 
         print("URL final:", response.url)
         print("Status HTTP:", response.status_code)

@@ -229,7 +229,7 @@ def gerar_saida():
 
     print(f"Arquivo gerado com sucesso: {ARQUIVO_SAIDA.resolve()}")
     print(f"Hoje ({hoje_br}): {len(registros_hoje)} registro(s)")
-    print(f"Amanhã ({amanha_br}): {len(registros_amanha)} registro(s)")
+    print(f"Amanha ({amanha_br}): {len(registros_amanha)} registro(s)")
 
 
 if __name__ == "__main__":

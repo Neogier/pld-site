@@ -27,12 +27,20 @@ function limparTabela(tbody) {
   tbody.innerHTML = "";
 }
 
+function logDebug(texto) {
+  if (debugEl) {
+    debugEl.textContent += texto;
+  }
+}
+
 function limparTudo() {
   limparTabela(tbodyHojeEl);
   limparTabela(tbodyAmanhaEl);
   infoHojeEl.textContent = "";
   infoAmanhaEl.textContent = "";
-  debugEl.textContent = "";
+  if (debugEl) {
+    debugEl.textContent = "";
+  }
 }
 
 function formatarNumeroBR(valor) {
@@ -237,19 +245,19 @@ async function carregarDados() {
       cache: "no-store"
     });
 
-    debugEl.textContent += `URL dados:\n${URL_DADOS}\n\n`;
-    debugEl.textContent += `HTTP Status: ${resposta.status}\n`;
-    debugEl.textContent += `Content-Type: ${resposta.headers.get("content-type") || "não informado"}\n\n`;
+    logDebug(`URL dados:\n${URL_DADOS}\n\n`);
+    logDebug(`HTTP Status: ${resposta.status}\n`);
+    logDebug(`Content-Type: ${resposta.headers.get("content-type") || "não informado"}\n\n`);
 
     if (!resposta.ok) {
       const textoErro = await resposta.text();
-      debugEl.textContent += `Corpo do erro:\n${textoErro}\n\n`;
+      logDebug(`Corpo do erro:\n${textoErro}\n\n`);
       throw new Error(`Falha HTTP: ${resposta.status}`);
     }
 
     const json = await resposta.json();
 
-    debugEl.textContent += JSON.stringify(json, null, 2).slice(0, 4000);
+    logDebug(JSON.stringify(json, null, 2).slice(0, 4000));
 
     const hoje = json.hoje || {};
     const amanha = json.amanha || {};
@@ -286,7 +294,7 @@ async function carregarDados() {
     console.error(erro);
     setStatus(`Erro ao carregar: ${erro.message}`, "erro");
 
-    if (!debugEl.textContent) {
+    if (debugEl && !debugEl.textContent) {
       debugEl.textContent = String(erro?.stack || erro?.message || erro);
     }
   }

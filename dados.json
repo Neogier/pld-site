@@ -1,13 +1,13 @@
 {
-  "atualizado_em": "2026-10-05T23:30:16Z",
+  "atualizado_em": "2026-10-06T23:30:18Z",
   "fonte": {
     "base_url": "https://dadosabertos.ccee.org.br/api/3/action/datastore_search",
     "resource_id": "3f279d6b-1069-42f7-9b0a-217b084729c4",
     "limite": 32000
   },
   "hoje": {
-    "data_iso": "2026-10-05",
-    "data_br": "05/10/2026",
+    "data_iso": "2026-10-06",
+    "data_br": "06/10/2026",
     "total_registros": 72,
     "linhas": [
       {
@@ -157,8 +157,8 @@
     ]
   },
   "amanha": {
-    "data_iso": "2026-10-06",
-    "data_br": "06/10/2026",
+    "data_iso": "2026-10-07",
+    "data_br": "07/10/2026",
     "total_registros": 72,
     "linhas": [
       {
@@ -271,9 +271,9 @@
       },
       {
         "Hora": 18,
-        "NORDESTE": 57.31,
-        "SUDESTE": 57.31,
-        "SUL": 57.31
+        "NORDESTE": 64.78,
+        "SUDESTE": 64.79,
+        "SUL": 64.78
       },
       {
         "Hora": 19,

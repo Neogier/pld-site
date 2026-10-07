@@ -1,16 +1,36 @@
 import json
-from datetime import datetime, timedelta
+import re
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from curl_cffi import requests
 
 
-RESOURCE_ID = "3f279d6b-1069-42f7-9b0a-217b084729c4"
-BASE_URL = "https://dadosabertos.ccee.org.br/api/3/action/datastore_search"
+API_URL = "https://dadosabertos.ccee.org.br/api/3/action/"
+BASE_URL = API_URL + "datastore_search"
+
+# A CCEE publica um recurso por ano dentro do pacote "pld_horario"
+# (pld_horario_2025, pld_horario_2026, ...). O ID e descoberto em tempo de
+# execucao; esta tabela so e usada se a consulta ao pacote falhar.
+PACOTE_PLD = "pld_horario"
+RESOURCE_IDS_CONHECIDOS = {
+    2025: "2a180a6b-f092-43eb-9f82-a48798b803dc",
+    2026: "3f279d6b-1069-42f7-9b0a-217b084729c4",
+}
+
 SUBMERCADOS_DESEJADOS = ["NORDESTE", "SUDESTE", "SUL"]
-LIMITE = 32000
+LIMITE = 500  # um dia tem 96 registros (24 horas x 4 submercados)
 
 ARQUIVO_SAIDA = Path("dados.json")
+
+# O GitHub Actions roda em UTC; as datas precisam ser as de Brasilia.
+try:
+    from zoneinfo import ZoneInfo
+
+    FUSO_BRASILIA = ZoneInfo("America/Sao_Paulo")
+except Exception:
+    # Windows sem o pacote tzdata. Brasil nao tem horario de verao desde 2019.
+    FUSO_BRASILIA = timezone(timedelta(hours=-3))
 
 
 def formatar_data_br(data_obj: datetime) -> str:
@@ -22,7 +42,7 @@ def formatar_data_iso(data_obj: datetime) -> str:
 
 
 def obter_hoje() -> datetime:
-    agora = datetime.now()
+    agora = datetime.now(FUSO_BRASILIA)
     return datetime(agora.year, agora.month, agora.day)
 
 
@@ -55,50 +75,82 @@ def normalizar_numero(valor):
         return None
 
 
-def buscar_lote_recente():
-    params = {
-        "resource_id": RESOURCE_ID,
-        "limit": LIMITE
-    }
+def criar_sessao():
+    sessao = requests.Session()
+    sessao.headers.update({
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/145.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Connection": "keep-alive",
+        "Referer": "https://dadosabertos.ccee.org.br/",
+        "Origin": "https://dadosabertos.ccee.org.br",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache"
+    })
+    return sessao
 
-    with requests.Session() as sessao:
-        sessao.headers.update({
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/145.0.0.0 Safari/537.36"
-            ),
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Connection": "keep-alive",
-            "Referer": "https://dadosabertos.ccee.org.br/",
-            "Origin": "https://dadosabertos.ccee.org.br",
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache"
-        })
 
-        response = sessao.get(BASE_URL, params=params, timeout=60, impersonate="chrome")
+def consultar_api(sessao, acao: str, params: dict) -> dict:
+    # impersonate="chrome" faz a conexao parecer um navegador; sem isso o WAF
+    # da CCEE devolve a pagina "Acesso bloqueado".
+    response = sessao.get(API_URL + acao, params=params, timeout=60, impersonate="chrome")
 
-        print("URL final:", response.url)
-        print("Status HTTP:", response.status_code)
-        print("Headers resposta:", dict(response.headers))
+    print(f"{acao}: HTTP {response.status_code}")
 
-        if response.status_code != 200:
-            print("Corpo do erro:")
-            print(response.text[:5000])
+    if response.status_code != 200:
+        print("Corpo do erro:")
+        print(response.text[:5000])
 
-        response.raise_for_status()
+    response.raise_for_status()
 
-        payload = response.json()
+    payload = response.json()
 
     if not payload.get("success"):
-        raise RuntimeError("A API da CCEE retornou success=false.")
+        raise RuntimeError(f"A API da CCEE retornou success=false em {acao}: {payload.get('error')}")
 
-    registros = payload.get("result", {}).get("records", [])
+    return payload.get("result", {})
+
+
+def buscar_resource_ids(sessao) -> dict:
+    try:
+        pacote = consultar_api(sessao, "package_show", {"id": PACOTE_PLD})
+    except Exception as erro:
+        print(f"Aviso: nao foi possivel listar os recursos do pacote ({erro}). Usando IDs conhecidos.")
+        return dict(RESOURCE_IDS_CONHECIDOS)
+
+    ids = dict(RESOURCE_IDS_CONHECIDOS)
+    for recurso in pacote.get("resources", []):
+        achado = re.fullmatch(r"pld_horario_(\d{4})", str(recurso.get("name", "")).strip())
+        if achado:
+            ids[int(achado.group(1))] = recurso["id"]
+
+    return ids
+
+
+def buscar_registros_do_dia(sessao, resource_id, data_obj: datetime):
+    if resource_id is None:
+        print(f"Aviso: nenhum recurso da CCEE para o ano {data_obj.year} ainda.")
+        return []
+
+    filtros = {
+        "MES_REFERENCIA": data_obj.strftime("%Y%m"),
+        # A CCEE grava o dia sem zero a esquerda ("7"); "07" fica por seguranca.
+        "DIA": [str(data_obj.day), data_obj.strftime("%d")],
+    }
+
+    resultado = consultar_api(sessao, "datastore_search", {
+        "resource_id": resource_id,
+        "filters": json.dumps(filtros),
+        "limit": LIMITE,
+    })
 
     return [
         item
-        for item in registros
+        for item in resultado.get("records", [])
         if padronizar_submercado(item.get("SUBMERCADO")) in SUBMERCADOS_DESEJADOS
     ]
 
@@ -182,45 +234,50 @@ def montar_matriz_horaria(registros):
     return [matriz[hora] for hora in sorted(matriz.keys())]
 
 
+def gerar_bloco_do_dia(sessao, resource_ids: dict, data_obj: datetime) -> dict:
+    data_iso = formatar_data_iso(data_obj)
+    resource_id = resource_ids.get(data_obj.year)
+
+    registros = enriquecer_registros(buscar_registros_do_dia(sessao, resource_id, data_obj))
+    registros = filtrar_por_data_iso(registros, data_iso)
+
+    return {
+        "data_iso": data_iso,
+        "data_br": formatar_data_br(data_obj),
+        "resource_id": resource_id,
+        "total_registros": len(registros),
+        "linhas": montar_matriz_horaria(registros),
+    }
+
+
 def gerar_saida():
     hoje = obter_hoje()
     amanha = obter_amanha()
 
-    hoje_iso = formatar_data_iso(hoje)
-    amanha_iso = formatar_data_iso(amanha)
-
-    hoje_br = formatar_data_br(hoje)
-    amanha_br = formatar_data_br(amanha)
-
-    registros_brutos = buscar_lote_recente()
-    registros = enriquecer_registros(registros_brutos)
-
-    registros_hoje = filtrar_por_data_iso(registros, hoje_iso)
-    registros_amanha = filtrar_por_data_iso(registros, amanha_iso)
-
-    linhas_hoje = montar_matriz_horaria(registros_hoje)
-    linhas_amanha = montar_matriz_horaria(registros_amanha)
+    with criar_sessao() as sessao:
+        resource_ids = buscar_resource_ids(sessao)
+        bloco_hoje = gerar_bloco_do_dia(sessao, resource_ids, hoje)
+        bloco_amanha = gerar_bloco_do_dia(sessao, resource_ids, amanha)
 
     saida = {
-        "atualizado_em": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "atualizado_em": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "fonte": {
             "base_url": BASE_URL,
-            "resource_id": RESOURCE_ID,
+            "resource_id": bloco_hoje["resource_id"],
             "limite": LIMITE,
         },
-        "hoje": {
-            "data_iso": hoje_iso,
-            "data_br": hoje_br,
-            "total_registros": len(registros_hoje),
-            "linhas": linhas_hoje,
-        },
-        "amanha": {
-            "data_iso": amanha_iso,
-            "data_br": amanha_br,
-            "total_registros": len(registros_amanha),
-            "linhas": linhas_amanha,
-        },
+        "hoje": bloco_hoje,
+        "amanha": bloco_amanha,
     }
+
+    print(f"Hoje ({bloco_hoje['data_br']}): {bloco_hoje['total_registros']} registro(s)")
+    print(f"Amanha ({bloco_amanha['data_br']}): {bloco_amanha['total_registros']} registro(s)")
+
+    # So regrava quando os dados mudam; assim o workflow nao gera um commit
+    # (e um deploy do site) a cada execucao so por causa do atualizado_em.
+    if dados_iguais_ao_arquivo_atual(saida):
+        print("Dados iguais aos do dados.json atual. Nada a gravar.")
+        return
 
     ARQUIVO_SAIDA.write_text(
         json.dumps(saida, ensure_ascii=False, indent=2),
@@ -228,8 +285,15 @@ def gerar_saida():
     )
 
     print(f"Arquivo gerado com sucesso: {ARQUIVO_SAIDA.resolve()}")
-    print(f"Hoje ({hoje_br}): {len(registros_hoje)} registro(s)")
-    print(f"Amanha ({amanha_br}): {len(registros_amanha)} registro(s)")
+
+
+def dados_iguais_ao_arquivo_atual(saida: dict) -> bool:
+    try:
+        atual = json.loads(ARQUIVO_SAIDA.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+
+    return all(atual.get(chave) == saida[chave] for chave in ("hoje", "amanha"))
 
 
 if __name__ == "__main__":

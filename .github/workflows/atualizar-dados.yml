@@ -50,7 +50,10 @@ jobs:
         run: |
           python atualizar_dados.py
 
+      # Roda mesmo se a consulta a CCEE falhar: se o Sergio publicou o dados.json
+      # pelo Termux, o e-mail sai com os dados dele.
       - name: Enviar e-mail do proximo dia
+        if: ${{ !cancelled() }}
         env:
           EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
           EMAIL_SENHA_APP: ${{ secrets.EMAIL_SENHA_APP }}

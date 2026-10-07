@@ -7,6 +7,10 @@ on:
         description: "Reenviar o e-mail do proximo dia mesmo que ja tenha sido enviado (teste)"
         type: boolean
         default: false
+      email_teste:
+        description: "Enviar agora um e-mail de TESTE com a tabela de hoje"
+        type: boolean
+        default: false
   schedule:
     # Horarios em UTC (Brasilia = UTC-3).
     # 17:00-21:50 de Brasilia, a cada 10 min: janela em que a CCEE publica o PLD do dia seguinte.
@@ -52,6 +56,7 @@ jobs:
           EMAIL_SENHA_APP: ${{ secrets.EMAIL_SENHA_APP }}
           EMAIL_DESTINATARIOS: ${{ secrets.EMAIL_DESTINATARIOS }}
           FORCAR_ENVIO: ${{ inputs.forcar_email }}
+          EMAIL_TESTE: ${{ inputs.email_teste }}
         run: |
           python enviar_email.py
 

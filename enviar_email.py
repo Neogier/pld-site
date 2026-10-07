@@ -9,6 +9,8 @@ Variaveis de ambiente (no GitHub ficam em Settings > Secrets):
   EMAIL_SENHA_APP      senha de app do Gmail (nao a senha normal)
   EMAIL_DESTINATARIOS  lista separada por virgula
   FORCAR_ENVIO         "true" envia mesmo que ja tenha enviado (teste)
+  EMAIL_TESTE          "true" envia a tabela de HOJE com assunto [TESTE], sem
+                       registrar o envio (para testar antes do PLD sair)
 
 Uso local: python enviar_email.py --so-imagem  (so gera o PNG, nao envia)
 """
@@ -116,7 +118,7 @@ def carregar_fonte(tamanho, negrito=False):
     return ImageFont.load_default(size=tamanho)
 
 
-def gerar_imagem(bloco, destino: Path):
+def gerar_imagem(bloco, destino: Path, rotulo="Próximo Dia"):
     linhas = bloco["linhas"]
     destaques = calcular_destaques(linhas)
 
@@ -139,7 +141,7 @@ def gerar_imagem(bloco, destino: Path):
     imagem = Image.new("RGB", (largura, altura), "#ffffff")
     desenho = ImageDraw.Draw(imagem)
 
-    desenho.text((margem, margem), f"PLD - Próximo Dia ({bloco['data_br']})", font=fonte_titulo, fill=COR_TEXTO)
+    desenho.text((margem, margem), f"PLD - {rotulo} ({bloco['data_br']})", font=fonte_titulo, fill=COR_TEXTO)
     desenho.text(
         (margem, margem + 44 * escala),
         "Fonte: CCEE - gerado em " + datetime.now(FUSO_BRASILIA).strftime("%d/%m/%Y %H:%M"),
@@ -177,7 +179,7 @@ def gerar_imagem(bloco, destino: Path):
 # =========================
 # E-MAIL
 # =========================
-def montar_html(bloco):
+def montar_html(bloco, rotulo="próximo dia"):
     linhas = bloco["linhas"]
     destaques = calcular_destaques(linhas)
     estilo_celula = f"border:1px solid {COR_BORDA};padding:4px 10px;text-align:center;"
@@ -197,7 +199,7 @@ def montar_html(bloco):
 
     return f"""\
 <div style="font-family:Arial,Helvetica,sans-serif;color:{COR_TEXTO};">
-  <p>PLD horário do próximo dia (<b>{bloco['data_br']}</b>) publicado pela CCEE.</p>
+  <p>PLD horário de {rotulo} (<b>{bloco['data_br']}</b>) publicado pela CCEE.</p>
   <p>A imagem da tabela segue em anexo. Site: <a href="{URL_SITE}">{URL_SITE}</a></p>
   <table style="border-collapse:collapse;font-size:14px;">
     <thead><tr>{cabecalho}</tr></thead>
@@ -210,16 +212,16 @@ def montar_html(bloco):
 </div>"""
 
 
-def enviar_email(bloco, imagem: Path, remetente, senha, destinatarios):
+def enviar_email(bloco, imagem: Path, remetente, senha, destinatarios, rotulo="próximo dia", prefixo_assunto=""):
     mensagem = EmailMessage()
-    mensagem["Subject"] = f"PLD {bloco['data_br']} publicado"
+    mensagem["Subject"] = f"{prefixo_assunto}PLD {bloco['data_br']} publicado"
     mensagem["From"] = remetente
     mensagem["To"] = ", ".join(destinatarios)
     mensagem.set_content(
-        f"PLD horário do próximo dia ({bloco['data_br']}) publicado. "
+        f"PLD horário de {rotulo} ({bloco['data_br']}) publicado. "
         f"A tabela segue em anexo e está no site: {URL_SITE}"
     )
-    mensagem.add_alternative(montar_html(bloco), subtype="html")
+    mensagem.add_alternative(montar_html(bloco, rotulo), subtype="html")
     mensagem.add_attachment(
         imagem.read_bytes(),
         maintype="image",
@@ -250,15 +252,44 @@ def salvar_estado(data_iso):
     ARQUIVO_ESTADO.write_text(json.dumps(estado, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def ler_config_email():
+    remetente = os.environ.get("EMAIL_REMETENTE", "").strip()
+    senha = os.environ.get("EMAIL_SENHA_APP", "").strip()
+    destinatarios = [e.strip() for e in os.environ.get("EMAIL_DESTINATARIOS", "").split(",") if e.strip()]
+
+    if not (remetente and senha and destinatarios):
+        print("Aviso: secrets de e-mail não configurados (EMAIL_REMETENTE, EMAIL_SENHA_APP, EMAIL_DESTINATARIOS). Nada enviado.")
+        return None
+
+    return remetente, senha, destinatarios
+
+
+def enviar_teste(hoje):
+    config = ler_config_email()
+    if config is None:
+        sys.exit(1)
+
+    remetente, senha, destinatarios = config
+    imagem = gerar_imagem(hoje, ARQUIVO_IMAGEM, rotulo="Hoje")
+    enviar_email(hoje, imagem, remetente, senha, destinatarios, rotulo="hoje", prefixo_assunto="[TESTE] ")
+
+    print(f"E-mail de TESTE ({hoje['data_br']}) enviado para {len(destinatarios)} destinatário(s).")
+
+
 def main():
     so_imagem = "--so-imagem" in sys.argv
     forcar = os.environ.get("FORCAR_ENVIO", "").strip().lower() == "true"
+    teste = os.environ.get("EMAIL_TESTE", "").strip().lower() == "true"
 
     dados = json.loads(ARQUIVO_DADOS.read_text(encoding="utf-8"))
     amanha = dados.get("amanha", {})
 
     if so_imagem:
         print(f"Imagem gerada: {gerar_imagem(amanha, ARQUIVO_IMAGEM).resolve()}")
+        return
+
+    if teste:
+        enviar_teste(dados.get("hoje", {}))
         return
 
     if amanha.get("total_registros", 0) < REGISTROS_DIA_COMPLETO:
@@ -269,14 +300,11 @@ def main():
         print(f"E-mail de {amanha['data_br']} já foi enviado.")
         return
 
-    remetente = os.environ.get("EMAIL_REMETENTE", "").strip()
-    senha = os.environ.get("EMAIL_SENHA_APP", "").strip()
-    destinatarios = [e.strip() for e in os.environ.get("EMAIL_DESTINATARIOS", "").split(",") if e.strip()]
-
-    if not (remetente and senha and destinatarios):
-        print("Aviso: secrets de e-mail não configurados (EMAIL_REMETENTE, EMAIL_SENHA_APP, EMAIL_DESTINATARIOS). Nada enviado.")
+    config = ler_config_email()
+    if config is None:
         return
 
+    remetente, senha, destinatarios = config
     imagem = gerar_imagem(amanha, ARQUIVO_IMAGEM)
     enviar_email(amanha, imagem, remetente, senha, destinatarios)
     salvar_estado(amanha["data_iso"])

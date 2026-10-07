@@ -2,6 +2,11 @@ name: Atualizar dados CCEE
 
 on:
   workflow_dispatch:
+    inputs:
+      forcar_email:
+        description: "Reenviar o e-mail do proximo dia mesmo que ja tenha sido enviado (teste)"
+        type: boolean
+        default: false
   schedule:
     # Horarios em UTC (Brasilia = UTC-3).
     # 17:00-21:50 de Brasilia, a cada 10 min: janela em que a CCEE publica o PLD do dia seguinte.
@@ -25,10 +30,10 @@ jobs:
 
     steps:
       - name: Baixar repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configurar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -41,12 +46,24 @@ jobs:
         run: |
           python atualizar_dados.py
 
+      - name: Enviar e-mail do proximo dia
+        env:
+          EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
+          EMAIL_SENHA_APP: ${{ secrets.EMAIL_SENHA_APP }}
+          EMAIL_DESTINATARIOS: ${{ secrets.EMAIL_DESTINATARIOS }}
+          FORCAR_ENVIO: ${{ inputs.forcar_email }}
+        run: |
+          python enviar_email.py
+
+      # Roda mesmo se o e-mail falhar, para o site nao deixar de ser atualizado.
       - name: Commitar dados.json se houve alteracao
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add dados.json
+          if [ -f notificacao.json ]; then git add notificacao.json; fi
 
           if git diff --cached --quiet; then
             echo "Nenhuma alteracao em dados.json"

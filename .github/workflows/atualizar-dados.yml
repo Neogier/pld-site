@@ -71,7 +71,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add dados.json
-          for arquivo in notificacao.json pld-proximo-dia.png pld-proximo-dia.json; do
+          for arquivo in notificacao.json pld-imagens.json pld-ontem.png pld-hoje.png pld-proximo-dia.png; do
             if [ -f "$arquivo" ]; then git add "$arquivo"; fi
           done
 

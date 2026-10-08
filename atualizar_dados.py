@@ -253,9 +253,11 @@ def gerar_bloco_do_dia(sessao, resource_ids: dict, data_obj: datetime) -> dict:
 def gerar_saida():
     hoje = obter_hoje()
     amanha = obter_amanha()
+    ontem = hoje - timedelta(days=1)
 
     with criar_sessao() as sessao:
         resource_ids = buscar_resource_ids(sessao)
+        bloco_ontem = gerar_bloco_do_dia(sessao, resource_ids, ontem)
         bloco_hoje = gerar_bloco_do_dia(sessao, resource_ids, hoje)
         bloco_amanha = gerar_bloco_do_dia(sessao, resource_ids, amanha)
 
@@ -266,10 +268,13 @@ def gerar_saida():
             "resource_id": bloco_hoje["resource_id"],
             "limite": LIMITE,
         },
+        # "ontem" nao aparece no site; e usado pelo comando !ontem do bot do WhatsApp.
+        "ontem": bloco_ontem,
         "hoje": bloco_hoje,
         "amanha": bloco_amanha,
     }
 
+    print(f"Ontem ({bloco_ontem['data_br']}): {bloco_ontem['total_registros']} registro(s)")
     print(f"Hoje ({bloco_hoje['data_br']}): {bloco_hoje['total_registros']} registro(s)")
     print(f"Amanha ({bloco_amanha['data_br']}): {bloco_amanha['total_registros']} registro(s)")
 
@@ -293,7 +298,7 @@ def dados_iguais_ao_arquivo_atual(saida: dict) -> bool:
     except (OSError, ValueError):
         return False
 
-    return all(atual.get(chave) == saida[chave] for chave in ("hoje", "amanha"))
+    return all(atual.get(chave) == saida[chave] for chave in ("ontem", "hoje", "amanha"))
 
 
 if __name__ == "__main__":

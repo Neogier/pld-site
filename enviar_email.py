@@ -28,10 +28,15 @@ from PIL import Image, ImageDraw, ImageFont
 
 ARQUIVO_DADOS = Path("dados.json")
 ARQUIVO_ESTADO = Path("notificacao.json")
-# Imagem do proximo dia, publicada no site para o bot do WhatsApp baixar.
-# O .json ao lado diz de que dia e a imagem.
-ARQUIVO_IMAGEM = Path("pld-proximo-dia.png")
-ARQUIVO_IMAGEM_INFO = Path("pld-proximo-dia.json")
+# Imagens publicadas no site para o bot do WhatsApp (!ontem, !hoje, !pld e o
+# envio diario). pld-imagens.json diz de que dia e cada imagem.
+# chave no dados.json -> (arquivo, rotulo no titulo da imagem)
+IMAGENS = {
+    "ontem": (Path("pld-ontem.png"), "Dia Anterior"),
+    "hoje": (Path("pld-hoje.png"), "Hoje"),
+    "amanha": (Path("pld-proximo-dia.png"), "Próximo Dia"),
+}
+ARQUIVO_IMAGENS_INFO = Path("pld-imagens.json")
 ARQUIVO_IMAGEM_TESTE = Path("pld-teste.png")
 
 URL_SITE = "https://neogier.github.io/pld-site/"
@@ -268,11 +273,25 @@ def ler_config_email():
     return remetente, senha, destinatarios
 
 
-def publicar_imagem(amanha):
-    imagem = gerar_imagem(amanha, ARQUIVO_IMAGEM)
-    info = {"data_iso": amanha["data_iso"], "data_br": amanha["data_br"]}
-    ARQUIVO_IMAGEM_INFO.write_text(json.dumps(info, ensure_ascii=False, indent=2), encoding="utf-8")
-    return imagem
+def publicar_imagens(dados):
+    """Gera a imagem de cada dia completo (ontem, hoje, amanha) para o site.
+
+    Dia incompleto mantem a imagem e a info anteriores, para o bot nunca
+    receber uma tabela pela metade.
+    """
+    try:
+        info = json.loads(ARQUIVO_IMAGENS_INFO.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        info = {}
+
+    for chave, (arquivo, rotulo) in IMAGENS.items():
+        bloco = dados.get(chave, {})
+        if bloco.get("total_registros", 0) < REGISTROS_DIA_COMPLETO:
+            continue
+        gerar_imagem(bloco, arquivo, rotulo=rotulo)
+        info[chave] = {"data_iso": bloco["data_iso"], "data_br": bloco["data_br"], "arquivo": arquivo.name}
+
+    ARQUIVO_IMAGENS_INFO.write_text(json.dumps(info, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def enviar_teste(hoje):
@@ -295,21 +314,23 @@ def main():
     dados = json.loads(ARQUIVO_DADOS.read_text(encoding="utf-8"))
     amanha = dados.get("amanha", {})
 
-    if so_imagem:
-        print(f"Imagem gerada: {gerar_imagem(amanha, ARQUIVO_IMAGEM).resolve()}")
-        return
-
     if teste:
         enviar_teste(dados.get("hoje", {}))
+        return
+
+    # Publica as imagens antes de tudo: o bot do WhatsApp depende delas mesmo
+    # que o e-mail ja tenha saido ou nao esteja configurado.
+    publicar_imagens(dados)
+
+    if so_imagem:
+        print(f"Imagens geradas: {[str(arquivo) for arquivo, _ in IMAGENS.values() if arquivo.exists()]}")
         return
 
     if amanha.get("total_registros", 0) < REGISTROS_DIA_COMPLETO:
         print(f"Próximo dia ({amanha.get('data_br')}) ainda incompleto: {amanha.get('total_registros', 0)} registro(s).")
         return
 
-    # Publica a imagem antes de tudo: o bot do WhatsApp depende dela mesmo que
-    # o e-mail ja tenha saido ou nao esteja configurado.
-    imagem = publicar_imagem(amanha)
+    imagem = IMAGENS["amanha"][0]
 
     if carregar_estado().get("ultimo_envio_data") == amanha["data_iso"] and not forcar:
         print(f"E-mail de {amanha['data_br']} já foi enviado.")

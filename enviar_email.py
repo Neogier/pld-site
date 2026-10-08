@@ -25,12 +25,14 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-from atualizar_dados import FUSO_BRASILIA
-
 
 ARQUIVO_DADOS = Path("dados.json")
 ARQUIVO_ESTADO = Path("notificacao.json")
+# Imagem do proximo dia, publicada no site para o bot do WhatsApp baixar.
+# O .json ao lado diz de que dia e a imagem.
 ARQUIVO_IMAGEM = Path("pld-proximo-dia.png")
+ARQUIVO_IMAGEM_INFO = Path("pld-proximo-dia.json")
+ARQUIVO_IMAGEM_TESTE = Path("pld-teste.png")
 
 URL_SITE = "https://neogier.github.io/pld-site/"
 SMTP_HOST = "smtp.gmail.com"
@@ -144,7 +146,9 @@ def gerar_imagem(bloco, destino: Path, rotulo="Próximo Dia"):
     desenho.text((margem, margem), f"PLD - {rotulo} ({bloco['data_br']})", font=fonte_titulo, fill=COR_TEXTO)
     desenho.text(
         (margem, margem + 44 * escala),
-        "Fonte: CCEE - gerado em " + datetime.now(FUSO_BRASILIA).strftime("%d/%m/%Y %H:%M"),
+        # Sem horario de geracao: a mesma tabela gera sempre o mesmo arquivo, e o
+        # workflow nao faz commit da imagem a cada execucao.
+        "Fonte: CCEE - dadosabertos.ccee.org.br",
         font=fonte_subtitulo,
         fill=COR_SUBTITULO,
     )
@@ -264,13 +268,20 @@ def ler_config_email():
     return remetente, senha, destinatarios
 
 
+def publicar_imagem(amanha):
+    imagem = gerar_imagem(amanha, ARQUIVO_IMAGEM)
+    info = {"data_iso": amanha["data_iso"], "data_br": amanha["data_br"]}
+    ARQUIVO_IMAGEM_INFO.write_text(json.dumps(info, ensure_ascii=False, indent=2), encoding="utf-8")
+    return imagem
+
+
 def enviar_teste(hoje):
     config = ler_config_email()
     if config is None:
         sys.exit(1)
 
     remetente, senha, destinatarios = config
-    imagem = gerar_imagem(hoje, ARQUIVO_IMAGEM, rotulo="Hoje")
+    imagem = gerar_imagem(hoje, ARQUIVO_IMAGEM_TESTE, rotulo="Hoje")
     enviar_email(hoje, imagem, remetente, senha, destinatarios, rotulo="hoje", prefixo_assunto="[TESTE] ")
 
     print(f"E-mail de TESTE ({hoje['data_br']}) enviado para {len(destinatarios)} destinatário(s).")
@@ -296,6 +307,10 @@ def main():
         print(f"Próximo dia ({amanha.get('data_br')}) ainda incompleto: {amanha.get('total_registros', 0)} registro(s).")
         return
 
+    # Publica a imagem antes de tudo: o bot do WhatsApp depende dela mesmo que
+    # o e-mail ja tenha saido ou nao esteja configurado.
+    imagem = publicar_imagem(amanha)
+
     if carregar_estado().get("ultimo_envio_data") == amanha["data_iso"] and not forcar:
         print(f"E-mail de {amanha['data_br']} já foi enviado.")
         return
@@ -305,7 +320,6 @@ def main():
         return
 
     remetente, senha, destinatarios = config
-    imagem = gerar_imagem(amanha, ARQUIVO_IMAGEM)
     enviar_email(amanha, imagem, remetente, senha, destinatarios)
     salvar_estado(amanha["data_iso"])
 

@@ -71,7 +71,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add dados.json
-          if [ -f notificacao.json ]; then git add notificacao.json; fi
+          for arquivo in notificacao.json pld-proximo-dia.png pld-proximo-dia.json; do
+            if [ -f "$arquivo" ]; then git add "$arquivo"; fi
+          done
 
           if git diff --cached --quiet; then
             echo "Nenhuma alteracao em dados.json"

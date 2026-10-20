@@ -11,6 +11,10 @@ Variaveis de ambiente (no GitHub ficam em Settings > Secrets):
   FORCAR_ENVIO         "true" envia mesmo que ja tenha enviado (teste)
   EMAIL_TESTE          "true" envia a tabela de HOJE com assunto [TESTE], sem
                        registrar o envio (para testar antes do PLD sair)
+  ORIGEM_ENVIO         quem envia, no rodapé (padrão "GitHub Actions"; o servidor usa o dele)
+
+PLD fora dos limites da ANEEL (validacao.py) não é enviado: o script avisa e
+espera a correção, que sai na próxima execução.
 
 Uso local: python enviar_email.py --so-imagem  (so gera o PNG, nao envia)
 """
@@ -24,6 +28,8 @@ from email.message import EmailMessage
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
+
+from validacao import problemas_do_dia
 
 
 ARQUIVO_DADOS = Path("dados.json")
@@ -216,7 +222,7 @@ def montar_html(bloco, rotulo="próximo dia"):
   </table>
   <p style="color:{COR_SUBTITULO};font-size:12px;">
     Amarelo: menores valores abaixo de R$ 150. Azul: 3 maiores valores.<br>
-    E-mail automático enviado pelo GitHub Actions.
+    E-mail automático enviado pelo {os.environ.get("ORIGEM_ENVIO", "").strip() or "GitHub Actions"}.
   </p>
 </div>"""
 
@@ -331,6 +337,12 @@ def main():
         return
 
     imagem = IMAGENS["amanha"][0]
+
+    problemas = problemas_do_dia(amanha)
+    if problemas:
+        print(f"BLOQUEADO: PLD de {amanha['data_br']} possivelmente errado ({'; '.join(problemas)}). "
+              f"E-mail não enviado; aguardando correção.")
+        return
 
     if carregar_estado().get("ultimo_envio_data") == amanha["data_iso"] and not forcar:
         print(f"E-mail de {amanha['data_br']} já foi enviado.")

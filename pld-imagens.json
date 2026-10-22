@@ -1,12 +1,12 @@
 {
   "ontem": {
-    "data_iso": "2026-10-20",
-    "data_br": "20/10/2026",
+    "data_iso": "2026-10-21",
+    "data_br": "21/10/2026",
     "arquivo": "pld-ontem.png"
   },
   "hoje": {
-    "data_iso": "2026-10-21",
-    "data_br": "21/10/2026",
+    "data_iso": "2026-10-22",
+    "data_br": "22/10/2026",
     "arquivo": "pld-hoje.png"
   },
   "amanha": {

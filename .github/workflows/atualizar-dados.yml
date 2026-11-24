@@ -22,8 +22,8 @@ on:
     # 00:20 de Brasilia: vira o "hoje" para o novo dia.
     - cron: "20 3 * * *"
 
-permissions:
-  contents: write
+# Nada por padrao; o job abaixo pede so o que precisa.
+permissions: {}
 
 # Evita duas execucoes ao mesmo tempo disputando o push.
 concurrency:
@@ -34,13 +34,16 @@ jobs:
   atualizar-json:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Precisa gravar no repositorio para publicar dados.json e as imagens.
+    permissions:
+      contents: write
 
     steps:
       - name: Baixar repositorio
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configurar Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 

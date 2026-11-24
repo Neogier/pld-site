@@ -1,2 +1,2 @@
-curl_cffi
-Pillow
+curl_cffi==0.17.0
+Pillow==13.0.0

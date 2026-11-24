@@ -1,0 +1,50 @@
+name: CI
+
+# Checagem de PR: lint, sintaxe e vulnerabilidades conhecidas nas dependências.
+# Só lê o repositório: não roda o atualizar_dados.py, não manda e-mail,
+# não usa segredos e não faz push.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths-ignore:
+      - dados.json
+      - notificacao.json
+      - pld-imagens.json
+      - "*.png"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Instala ferramentas
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pip-audit
+
+      - name: Ruff (lint)
+        run: ruff check --output-format=github .
+
+      - name: Sintaxe dos scripts
+        run: python -m compileall -q -x '(^|/)\.' .
+
+      - name: pip-audit (vulnerabilidades conhecidas)
+        run: pip-audit -r requirements.txt

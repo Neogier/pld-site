@@ -1,0 +1,7 @@
+# Lint do CI de PR: pyflakes, pycodestyle e bugbear.
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "B"]
+ignore = ["E501"]  # linhas longas: o código não usa formatador

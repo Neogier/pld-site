@@ -67,7 +67,7 @@ COR_SUBTITULO = "#4b5563"
 # =========================
 def obter_menores_por_coluna(linhas, coluna):
     valores = sorted(
-        l[coluna] for l in linhas if l[coluna] is not None and l[coluna] < 150
+        linha[coluna] for linha in linhas if linha[coluna] is not None and linha[coluna] < 150
     )
 
     if not valores:
@@ -76,17 +76,17 @@ def obter_menores_por_coluna(linhas, coluna):
     valor_corte = valores[min(2, len(valores) - 1)]
 
     return {
-        l["Hora"]
-        for l in linhas
-        if l[coluna] is not None and l[coluna] < 150 and l[coluna] <= valor_corte
+        linha["Hora"]
+        for linha in linhas
+        if linha[coluna] is not None and linha[coluna] < 150 and linha[coluna] <= valor_corte
     }
 
 
 def obter_top3_por_coluna(linhas, coluna):
-    distintos = sorted({l[coluna] for l in linhas if l[coluna] is not None}, reverse=True)
+    distintos = sorted({linha[coluna] for linha in linhas if linha[coluna] is not None}, reverse=True)
     top3 = set(distintos[:3])
 
-    return {l["Hora"] for l in linhas if l[coluna] is not None and l[coluna] in top3}
+    return {linha["Hora"] for linha in linhas if linha[coluna] is not None and linha[coluna] in top3}
 
 
 def calcular_destaques(linhas):
